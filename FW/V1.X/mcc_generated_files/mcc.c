@@ -54,7 +54,6 @@ void SYSTEM_Initialize(void)
     OSCILLATOR_Initialize();
     WDT_Initialize();
     DAC_Initialize();
-    ADC1_Initialize();
     TMR1_Initialize();
     EUSART_Initialize();
 }

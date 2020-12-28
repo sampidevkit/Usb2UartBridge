@@ -59,8 +59,8 @@ void DAC_Initialize(void)
 {
     // DACOE enabled; DACEN enabled; DACPSS VDD; 
     DACCON0 = 0xA0;
-    // DACR 12; 
-    DACCON1 = 0x0C;
+    // DACR 0; 
+    DACCON1 = 0x00;
 }
 
 void DAC_SetOutput(uint8_t inputData)

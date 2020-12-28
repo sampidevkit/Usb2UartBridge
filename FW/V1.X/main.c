@@ -1,76 +1,72 @@
-/**
-  Generated Main Source File
+#include "libcomp.h"
 
-  Company:
-    Microchip Technology Inc.
-
-  File Name:
-    main.c
-
-  Summary:
-    This is the main file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
-
-  Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
-    Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.81.6
-        Device            :  PIC12F1572
-        Driver Version    :  2.00
-*/
-
-/*
-    (c) 2018 Microchip Technology Inc. and its subsidiaries. 
-    
-    Subject to your compliance with these terms, you may use Microchip software and any 
-    derivatives exclusively with Microchip products. It is your responsibility to comply with third party 
-    license terms applicable to your use of third party software (including open source software) that 
-    may accompany Microchip software.
-    
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER 
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY 
-    IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS 
-    FOR A PARTICULAR PURPOSE.
-    
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND 
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP 
-    HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO 
-    THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL 
-    CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT 
-    OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS 
-    SOFTWARE.
-*/
-
-#include "mcc_generated_files/mcc.h"
-
-/*
-                         Main application
- */
-void main(void)
+void ADC_Init(void) // <editor-fold defaultstate="collapsed" desc="ADC Init">
 {
-    // initialize the device
+    // ADFM right; ADPREF VDD; ADCS Frc; 
+    ADCON1=0xF0;
+    // TRIGSEL no_auto_trigger; 
+    ADCON2=0x00;
+    // ADRESL 0; 
+    ADRESL=0x00;
+    // ADRESH 0; 
+    ADRESH=0x00;
+    // GO_nDONE stop; ADON enabled; CHS AN0; 
+    ADCON0=0x01;
+    // select the A/D channel
+    ADCON0bits.CHS=0x3;
+    // Turn on the ADC module
+    ADCON0bits.ADON=1;
+    __delay_us(20);
+} // </editor-fold>
+
+void main(void) // <editor-fold defaultstate="collapsed" desc="Main">
+{
+    uint32_t preVol;
+    uint32_t prvVol=0;
+    uint16_t LogicTime=0;
+    uint16_t ButtonTime=0;
+
     SYSTEM_Initialize();
+    Tick_Timer_Init();
+    DbWriteStr("USB To UART Bridge v");
+    INTERRUPT_GlobalInterruptEnable();
+    INTERRUPT_PeripheralInterruptEnable();
 
-    // When using interrupts, you need to set the Global and Peripheral Interrupt Enable bits
-    // Use the following macros to:
-
-    // Enable the Global Interrupts
-    //INTERRUPT_GlobalInterruptEnable();
-
-    // Enable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptEnable();
-
-    // Disable the Global Interrupts
-    //INTERRUPT_GlobalInterruptDisable();
-
-    // Disable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptDisable();
-
-    while (1)
+    while(1)
     {
-        // Add your application code
+        CLRWDT();
+
+        if(BUTTON_GetValue()==0)
+        {
+            if(ButtonTime==0)
+                ButtonTime=Tick_Timer_Read();
+        }
+        else if(ButtonTime>0)
+        {
+            ButtonTime=Tick_Timer_Read()-ButtonTime;
+            ButtonTime/=TICK_PER_MS;
+
+            if(ButtonTime>=2000) // Save config
+            {
+
+            }
+            else if(ButtonTime>=100) // Change logic
+            {
+
+            }
+
+            ButtonTime=0;
+        }
+        // Get voltage
+        if(ADCON0bits.ADGO==0)
+        {
+            preVol=((uint16_t) ((ADRESH<<8)+ADRESL));
+            // Start new conversion
+            ADCON0bits.ADGO=1;
+            preVol&=0b0000001111111111;
+            preVol*=5000; // Vref
+            preVol>>=10; // div 1024
+        }
+        // compare
     }
-}
-/**
- End of File
-*/
+} // </editor-fold>

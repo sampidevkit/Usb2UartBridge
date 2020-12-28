@@ -125,8 +125,8 @@ void TMR1_WriteTimer(uint16_t timerVal)
         T1CONbits.TMR1ON = 0;
 
         // Write to the Timer1 register
-        TMR1H = (timerVal >> 8);
-        TMR1L = timerVal;
+        TMR1H = (uint8_t)(timerVal >> 8);
+        TMR1L = (uint8_t)timerVal;
 
         // Start the Timer after writing to the register
         T1CONbits.TMR1ON =1;
@@ -134,8 +134,8 @@ void TMR1_WriteTimer(uint16_t timerVal)
     else
     {
         // Write to the Timer1 register
-        TMR1H = (timerVal >> 8);
-        TMR1L = timerVal;
+        TMR1H = (uint8_t)(timerVal >> 8);
+        TMR1L = (uint8_t)timerVal;
     }
 }
 

@@ -1,3 +1,6 @@
 [submodule "HW/model3d"]
 	path = HW/model3d
 	url = ../Model3D.git
+[submodule "FW/XCLibrary"]
+	path = FW/XCLibrary
+	url = ../XCLibrary.git
